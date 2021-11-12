@@ -1,0 +1,13 @@
+{
+  "name": "scratch-off",
+  "version": "1.0.0",
+  "description": "canvas based scratch-off",
+  "main": "index.html",
+  "scripts": {
+    "start": "cd public && live-server --no-css-inject"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}

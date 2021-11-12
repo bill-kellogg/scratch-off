@@ -1,0 +1,114 @@
+@keyframes scratchoff {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(-20deg);
+  }
+
+  12% {
+    transform: translate3d(110%, -60%, 0) rotate(0);
+  }
+
+  30% {
+    transform: translate3d(-20%, 90%, 0) rotate(-10deg);
+  }
+
+  45% {
+    transform: translate3d(180%, -15%, 0) rotate(30deg);
+  }
+
+  100% {
+    transform: translate3d(-26%, 220%, 0) rotate(0);
+  }
+}
+
+html, body {
+  background-color: #2b2a2a;
+}
+
+.container {
+  width: 500px;
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 400px) {
+  .container {
+    width: 325px;
+  }
+}
+
+.header {
+  font-family: Helvetica, sans-serif;
+  color: #fff;
+  text-align: center;
+}
+
+.stroke-1 {
+  fill: none;
+  stroke: #f7a8ad;
+  stroke-width: 40px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1500;
+  stroke-dashoffset: 1510;
+  transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: absolute;
+  transform: translate(20px, 20px);
+  transition-delay: 0.25s;
+}
+
+.start .stroke-1 {
+  stroke-dashoffset: 410;
+}
+
+.animation__wrapper {
+  position: absolute; 
+  top: 0;
+  width: 20%;
+  height: 16%;
+  margin: 10% 40%; 
+  z-index: 2;
+}
+
+#scratchoff {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#hand {
+  display: block;
+  position: absolute;
+  top: 28%;
+  left: 17%;
+  width: 32%;
+}
+
+.start #hand {
+  animation: 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) scratchoff forwards;
+  animation-delay: 0.25s;
+}
+
+.offer__wrapper {
+  position: relative;
+  height: auto;
+  padding-top: 140%;
+  margin: 0 auto;
+  background-size: 100%;
+  background-color: #2b2a2a;
+  cursor: url("https://s3.us-east-2.amazonaws.com/mrwillybee/images/hand-cursor.svg"),
+    auto;
+}
+
+.offer__container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+#canvas {
+  position: absolute;
+  z-index: 1;
+}
