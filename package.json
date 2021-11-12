@@ -2,7 +2,7 @@
   "name": "scratch-off",
   "version": "1.0.0",
   "description": "canvas based scratch-off",
-  "main": "index.html",
+  "main": "/public/index.html",
   "scripts": {
     "start": "cd public && live-server --no-css-inject"
   },
