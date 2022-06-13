@@ -1,94 +1,111 @@
-let container = document.querySelector(".offer__wrapper");
-let canvas_id = "canvas";
-let canvas = document.getElementById(canvas_id);
-let ctx = document.getElementById(canvas_id).getContext("2d");
-let scratch_image = new Image();
-let assetPath = "https://s3.us-east-2.amazonaws.com/mrwillybee/images";
-scratch_image.crossOrigin = "Anonymous";
-scratch_image.src = `${assetPath}/scratch-off-cover.jpg`;
+const container = document.querySelector(".offer__wrapper")
+const canvas_id = "canvas"
+const canvas = document.getElementById(canvas_id)
+const ctx = document.getElementById(canvas_id).getContext("2d")
 
-let image_arr = [
+const assetPath = "https://s3.us-east-2.amazonaws.com/mrwillybee/images"
+
+let scratch_image = new Image()
+    scratch_image.crossOrigin = "Anonymous"
+    scratch_image.src = `${assetPath}/scratch-off-cover.jpg`
+
+const image_arr = [
   {
     src: "illusion_0.jpg",
-    copy: "Up to $18.50 value.",
+    copy: "Illusion 0",
     link: "#"
   },
   {
     src: "illusion_1.jpg",
-    copy: "Up to $32.95 value.",
+    copy: "Illusion 1",
     link: "#"
   },
   {
     src: "illusion_2.jpg",
-    copy: "Excludes Victoria's Secret bras and clearance.",
+    copy: "Illusion 2",
     link: "#"
   }
-];
+]
 
-let imageIdx = randomIntFromInterval(1, 3);
-let isDrawing = null;
-let lastPoint = null;
-let hand_animation = true;
+// pick random number between one and 3 to select an illusion image from arr
+const imageIdx = randomIntFromInterval(1, 3)
+
+let isDrawing = null
+let lastPoint = null
+let hand_animation = true
+
+function handleMouseUp() {
+  isDrawing = false;
+}
+
+function placeResultImage(imageIdx) {
+  const imagePath = `${image_arr[imageIdx].src}`;
+  document.querySelector(".offer__wrapper").style.backgroundImage = `url(
+    ${assetPath}/${imagePath}
+  )`;
+}
+
+function randomIntFromInterval(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min) - 1;
+}
 
 function getCanvasHeight() {
   return (
     document.querySelector(".offer__wrapper").getBoundingClientRect().height + 1
-  );
+  )
 }
 
 function getCanvasWidth() {
   return (
     document.querySelector(".offer__wrapper").getBoundingClientRect().width + 1
-  );
+  )
 }
 
+// util function to parse mouse/touch event data
 function distanceBetween(point1, point2) {
   return Math.sqrt(
-    Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)
-  );
+    Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2) || 1
+  )
 }
 
+// util function to parse mouse/touch event data
 function angleBetween(point1, point2) {
-  return Math.atan2(point2.x - point1.x, point2.y - point1.y);
+  return Math.atan2(point2.x - point1.x, point2.y - point1.y) || 1
 }
 
-function getFilledInPixels(stride) {
-  if (!stride || stride < 1) {
-    stride = 1;
-  }
+function getFilledInPixels() {
+  // radius of scratching circle
+  const radius = 35
 
   let pixels = ctx.getImageData(0, 0, canvas.width, canvas.height),
-    pdata = pixels.data,
-    l = pdata.length,
-    total = l / stride,
-    count = 0;
+      pdata = pixels.data,
+      l = pdata.length,
+      total = l / radius,
+      count = 0
 
-  for (var i = (count = 0); i < l; i += stride) {
-    if (parseInt(pdata[i]) === 0) {
-      count++;
+  for (var i = (count = 0); i < l; i += radius) {
+    if (parseInt(pdata[i], 10) === 0) {
+      count++
     }
   }
-  return Math.round((count / total) * 100);
+
+  return Math.round((count / total) * 100) || 0
 }
 
-function getMouse(e, canvas) {
+function getMouseCoords(e) {
   let offsetX = container.getBoundingClientRect().left,
-    offsetY = container.getBoundingClientRect().top,
-    mx,
-    my;
+      offsetY = container.getBoundingClientRect().top
+  
+  let mx = e.pageX - offsetX,
+      my = e.pageY - offsetY - window.pageYOffset
 
-  mx = e.pageX - offsetX;
-  my = e.pageY - offsetY - window.pageYOffset;
-
-  return { x: mx, y: my };
+  return { x: mx, y: my }
 }
 
 function handlePercentage(filledInPixels) {
-  filledInPixels = filledInPixels || 0;
-
+  // remove canvas once 60% of it has been scratched off
   if (filledInPixels > 60 && canvas.parentNode) {
-    canvas.parentNode.removeChild(canvas);
-    scratchCompleteCb();
+    canvas.parentNode.removeChild(canvas)
   }
 }
 
@@ -101,7 +118,7 @@ function handleMouseDown(e) {
   }
 
   isDrawing = true;
-  lastPoint = getMouse(e, canvas);
+  lastPoint = getMouseCoords(e);
 }
 
 function handleMouseMove(e) {
@@ -111,7 +128,7 @@ function handleMouseMove(e) {
 
   e.preventDefault();
 
-  let currentPoint = getMouse(e, canvas),
+  let currentPoint = getMouseCoords(e),
     dist = distanceBetween(lastPoint, currentPoint),
     angle = angleBetween(lastPoint, currentPoint),
     x,
@@ -119,6 +136,7 @@ function handleMouseMove(e) {
 
   ctx.beginPath();
 
+  // cut circles out of canvas for each pixel distance traveled 
   for (let i = 0; i < dist; i++) {
     x = lastPoint.x + Math.sin(angle) * i;
     y = lastPoint.y + Math.cos(angle) * i;
@@ -127,13 +145,11 @@ function handleMouseMove(e) {
     ctx.fill();
   }
 
-  ctx.stroke();
-  lastPoint = currentPoint;
-  handlePercentage(getFilledInPixels(35));
-}
+  ctx.stroke()
+  lastPoint = currentPoint
 
-function handleMouseUp(e) {
-  isDrawing = false;
+  // check how much of the canvas is left
+  handlePercentage(getFilledInPixels())
 }
 
 function init() {
@@ -143,7 +159,7 @@ function init() {
   scratch_image.onload = function () {
     ctx.drawImage(scratch_image, 0, 0, getCanvasWidth(), getCanvasHeight());
     document.querySelector(".animation__wrapper").classList.add("start");
-    placeOfferContent(imageIdx);
+    placeResultImage(imageIdx);
   };
 
   canvas.addEventListener("click", () => false, false);
@@ -155,21 +171,6 @@ function init() {
   canvas.addEventListener("touchstart", handleMouseDown, false);
   canvas.addEventListener("touchmove", handleMouseMove, false);
   canvas.addEventListener("touchend", handleMouseUp, false);
-}
-
-function scratchCompleteCb() {
-  placeOfferContent(imageIdx);
-}
-
-function placeOfferContent(imageIdx) {
-  const imagePath = `${image_arr[imageIdx].src}`;
-  document.querySelector(".offer__wrapper").style.backgroundImage = `url(
-    ${assetPath}/${imagePath}
-  )`;
-}
-
-function randomIntFromInterval(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min) - 1;
 }
 
 init();
